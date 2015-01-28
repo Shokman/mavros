@@ -3,14 +3,16 @@
   <!-- example launch script for PX4 based FCU's -->
 
   <!-- remote ip for gcs -->
-  <arg name="gcs_ip" default="127.0.0.1" />
+  <arg name="gcs_ip" default="localhost" />
 
 	<arg name="fcu_url" default="udp://127.0.0.1:14550@127.0.0.1:14551" />
 	<arg name="gcs_url" default="udp://0.0.0.0:14555@$(arg gcs_ip):14552" />
-	<arg name="system_id" default="1" />
+	<arg name="system_id" default="255" />
 	<arg name="component_id" default="240" />
 	<arg name="tgt_system" default="1" />
-	<arg name="tgt_component" default="250" />
+	<arg name="tgt_component" default="1" />
+	<arg name="heartbeat_frec" default="0" />
+	<arg name="conn_timeout" default="30" />
 
   <include file="$(find mavros)/launch/node.launch">
     <arg name="blacklist_yaml" value="$(find mavros)/launch/px4_blacklist.yaml" />
@@ -22,5 +24,7 @@
 		<arg name="component_id" value="$(arg component_id)" />
 		<arg name="tgt_system" value="$(arg tgt_system)" />
 		<arg name="tgt_component" value="$(arg tgt_component)" />
+		<arg name="heartbeat_frec" value="$(arg heartbeat_frec)" />
+		<arg name="conn_timeout" value="$(arg conn_timeout)" />
 	</include>
 </launch>

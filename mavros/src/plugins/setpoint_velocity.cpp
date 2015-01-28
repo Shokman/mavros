@@ -71,9 +71,10 @@ namespace mavplugin {
 		 */
 		uint16_t ignore_all_except_v_xyz_yr = (1<<10)|(7<<6)|(7<<0);
 
+
 		// ENU->NED. Issue #49.
 		set_position_target_local_ned(stamp.toNSec() / 1000000,
-				MAV_FRAME_LOCAL_NED,
+				MAV_FRAME_LOCAL_OFFSET_NED,
 				ignore_all_except_v_xyz_yr,
 				0.0, 0.0, 0.0,
 				vy, vx, -vz,

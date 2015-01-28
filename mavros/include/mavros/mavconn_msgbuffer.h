@@ -81,6 +81,21 @@ struct MsgBuffer {
 	ssize_t nbytes() {
 		return len - pos;
 	}
+
+	/**
+	* Convenience function for low-level buffer contents debugging
+	*/
+	void debug_print() {
+		char debug_string[MAX_SIZE*3];
+		int i = 0;
+
+		for(i=0;i<len;i++) {
+			sprintf(debug_string+(3*i),"%2x ", data[i]);
+ 		}
+
+	 	debug_string[3*i-1] = 0;
+ 		ROS_INFO("%s", debug_string);
+	}
 };
 
 }; // namespace mavconn

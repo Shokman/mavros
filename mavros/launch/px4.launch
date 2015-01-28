@@ -2,10 +2,16 @@
 	<!-- vim: ft=xml -->
 	<!-- example launch script for PX4 based FCU's -->
 
-	<arg name="fcu_url" default="/dev/ttyACM0:57600" />
-	<arg name="gcs_url" default="" />
+        <!-- remote ip for gcs -->
+        <arg name="gcs_ip" default="127.0.0.1" />
+        <arg name="serial_dev" default="ttyACM0" />
+
+	<arg name="fcu_url" default="/dev/$(arg serial_dev):57600" />
+        <arg name="gcs_url" default="udp://@$(arg gcs_ip):14552" />
+        <arg name="system_id" default="255" />
+        <arg name="component_id" default="240" />
 	<arg name="tgt_system" default="1" />
-	<arg name="tgt_component" default="50" />
+	<arg name="tgt_component" default="1" />
 
 	<include file="$(find mavros)/launch/node.launch">
 		<arg name="blacklist_yaml" value="$(find mavros)/launch/px4_blacklist.yaml" />
@@ -13,6 +19,8 @@
 
 		<arg name="fcu_url" value="$(arg fcu_url)" />
 		<arg name="gcs_url" value="$(arg gcs_url)" />
+                <arg name="system_id" value="$(arg system_id)" />
+                <arg name="component_id" value="$(arg component_id)" />
 		<arg name="tgt_system" value="$(arg tgt_system)" />
 		<arg name="tgt_component" value="$(arg tgt_component)" />
 	</include>
