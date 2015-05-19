@@ -123,7 +123,7 @@ private:
 
 		// Set the position already in NED frame for the Pixhawk
 		vision_position_estimate(stamp.toNSec() / 1000,
-				position.y(), position.x(), position.z(),
+				position.x(), position.y(), position.z(),
 				roll, pitch, yaw);
 	}
 
