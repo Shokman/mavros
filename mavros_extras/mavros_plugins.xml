@@ -17,4 +17,7 @@
 	<class name="visualization" type="mavplugin::VisualizationPlugin" base_class_type="mavplugin::MavRosPlugin">
 		<description>Display position track of MAV in RViz</description>
 	</class>
+	<class name="hil" type="mavplugin::HILPlugin" base_class_type="mavplugin::MavRosPlugin">
+		<description>Handle hardware in the loop associated messages</description>
+	</class>
 </library>
