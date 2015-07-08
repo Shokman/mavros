@@ -64,7 +64,7 @@ private:
 		ros::Time time = ros::Time::now();
 
 		mavlink_msg_hil_sensor_pack_chan(UAS_PACK_CHAN(uas), &msg,
-				time.toNSec(),
+				time.toNSec()/1000,
 				hil_sensor->xacc,
 				hil_sensor->yacc,
 				hil_sensor->zacc,
