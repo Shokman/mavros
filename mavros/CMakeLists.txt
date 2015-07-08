@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   message_runtime
   pluginlib
   roscpp
+  geometry_msgs
   sensor_msgs
   std_msgs
   std_srvs
@@ -18,11 +19,14 @@ find_package(catkin REQUIRED COMPONENTS
   angles
   libmavconn
   rosconsole_bridge
+  cmake_modules
+  eigen_conversions
 )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 find_package(Boost REQUIRED COMPONENTS system)
+find_package(Eigen REQUIRED)
 
 include(EnableCXX11)
 include(MavrosMavlink)
@@ -133,8 +137,8 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES mavros
-  CATKIN_DEPENDS diagnostic_msgs diagnostic_updater pluginlib roscpp sensor_msgs std_msgs tf geometry_msgs libmavconn
-  DEPENDS Boost mavlink
+  CATKIN_DEPENDS diagnostic_msgs diagnostic_updater pluginlib roscpp sensor_msgs std_msgs tf geometry_msgs libmavconn message_runtime eigen_conversions
+  DEPENDS Boost Eigen
 )
 
 ###########
@@ -150,11 +154,15 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
   ${mavlink_INCLUDE_DIRS}
+  ${EIGEN_INCLUDE_DIRS}
 )
 
-
 add_library(mavros
-  src/lib/uas.cpp
+  src/lib/uas_data.cpp
+  src/lib/uas_stringify.cpp
+  src/lib/uas_timesync.cpp
+  src/lib/uas_sensor_orientation.cpp
+  src/lib/uas_frame_conversions.cpp
   src/lib/mavros.cpp
   src/lib/mavlink_diag.cpp
   src/lib/rosconsole_bridge.cpp
@@ -265,13 +273,14 @@ install(DIRECTORY launch/
 ## Testing ##
 #############
 
-## Add gtest based cpp test target and link libraries
-#catkin_add_gtest(mavconn-test test/test_mavconn.cpp)
-#if(TARGET mavconn-test)
-#  target_link_libraries(mavconn-test mavconn)
-#endif()
+if(CATKIN_ENABLE_TESTING)
+
+catkin_add_gtest(libmavros-frame-test test/test_frame_conv.cpp)
+target_link_libraries(libmavros-frame-test mavros)
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+
+endif()
 
 # vim: ts=2 sw=2 et:
