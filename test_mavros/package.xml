@@ -1,34 +1,27 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>libmavconn</name>
-  <version>0.12.0</version>
-  <description>
-    MAVLink communication library.
-    This library provide unified connection handling classes
-    and URL to connection object mapper.
-
-    This library can be used in standalone programs.
-  </description>
+  <name>test_mavros</name>
+  <version>0.0.0</version>
+  <description>Tests for MAVROS package</description>
 
   <maintainer email="vooon341@gmail.com">Vladimir Ermakov</maintainer>
+  <author email="n.marques21@hotmail.com">Nuno Marques</author>
   <author email="vooon341@gmail.com">Vladimir Ermakov</author>
+
+  <license>BSD</license>
   <license>GPLv3</license>
   <license>LGPLv3</license>
-  <license>BSD</license>
 
-  <url type="website">http://wiki.ros.org/mavros</url>
+  <!-- <url type="website">http://wiki.ros.org/test_mavros</url> -->
   <url type="repository">https://github.com/mavlink/mavros.git</url>
   <url type="bugtracker">https://github.com/mavlink/mavros/issues</url>
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <depend>boost</depend>
-  <depend>mavlink</depend>
-  <depend>libconsole-bridge-dev</depend>
-
   <test_depend>gtest</test_depend>
+  <test_depend>mavros</test_depend>
+  <test_depend>mavros_extras</test_depend>
 
   <export>
-    <rosdoc config="rosdoc.yaml" />
   </export>
 </package>
