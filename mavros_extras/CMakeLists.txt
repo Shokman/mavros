@@ -116,7 +116,6 @@ add_library(mavros_extras
   src/plugins/mocap_pose_estimate.cpp
   src/plugins/vision_pose_estimate.cpp
   src/plugins/vision_speed_estimate.cpp
-  src/plugins/visualization.cpp
   src/plugins/hil.cpp
   src/plugins/vibration.cpp
 )
