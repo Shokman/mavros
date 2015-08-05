@@ -56,6 +56,7 @@ add_message_files(
   HILSensor.msg
   HILControls.msg
   Vibration.msg
+  CamIMUStamp.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -116,9 +117,9 @@ add_library(mavros_extras
   src/plugins/mocap_pose_estimate.cpp
   src/plugins/vision_pose_estimate.cpp
   src/plugins/vision_speed_estimate.cpp
-  src/plugins/visualization.cpp
-  src/plugins/hil.cpp
   src/plugins/vibration.cpp
+  src/plugins/cam_imu_sync.cpp
+  src/plugins/hil.cpp
 )
 add_dependencies(mavros_extras
   mavros_extras_generate_messages_cpp
@@ -134,6 +135,13 @@ add_executable(gcs_image_bridge
 )
 target_link_libraries(gcs_image_bridge
   ${mavros_LIBRARIES}
+  ${catkin_LIBRARIES}
+)
+
+add_executable(copter_visualization
+  src/copter_visualization.cpp
+)
+target_link_libraries(copter_visualization
   ${catkin_LIBRARIES}
 )
 
@@ -153,7 +161,7 @@ install(PROGRAMS
 )
 
 ## Mark executables and/or libraries for installation
-install(TARGETS mavros_extras gcs_image_bridge
+install(TARGETS mavros_extras gcs_image_bridge copter_visualization
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

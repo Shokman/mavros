@@ -13,6 +13,7 @@
  * in the top-level LICENSE file of the mavros repository.
  * https://github.com/mavlink/mavros/tree/master/LICENSE.md
  */
+#include <ros/console.h>
 
 #include <mavros/mavros_plugin.h>
 #include <pluginlib/class_list_macros.h>

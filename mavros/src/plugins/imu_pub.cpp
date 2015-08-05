@@ -17,7 +17,6 @@
 #include <cmath>
 #include <mavros/mavros_plugin.h>
 #include <pluginlib/class_list_macros.h>
-#include <tf/transform_datatypes.h>
 #include <eigen_conversions/eigen_msg.h>
 
 #include <sensor_msgs/Imu.h>
@@ -115,44 +114,21 @@ private:
 	bool has_scaled_imu;
 	bool has_att_quat;
 	Eigen::Vector3d linear_accel_vec;
-	UAS::Covariance3x3 linear_acceleration_cov;
-	UAS::Covariance3x3 angular_velocity_cov;
-	UAS::Covariance3x3 orientation_cov;
-	UAS::Covariance3x3 unk_orientation_cov;
-	UAS::Covariance3x3 magnetic_cov;
+	UAS::Covariance3d linear_acceleration_cov;
+	UAS::Covariance3d angular_velocity_cov;
+	UAS::Covariance3d orientation_cov;
+	UAS::Covariance3d unk_orientation_cov;
+	UAS::Covariance3d magnetic_cov;
 
 	/* -*- helpers -*- */
 
-	void setup_covariance(UAS::Covariance3x3 &cov, double stdev) {
+	void setup_covariance(UAS::Covariance3d &cov, double stdev) {
 		std::fill(cov.begin(), cov.end(), 0.0);
 		if (stdev == 0.0)
 			cov[0] = -1.0;
 		else {
 			cov[0 + 0] = cov[3 + 1] = cov[6 + 2] = std::pow(stdev, 2);
 		}
-	}
-
-	void uas_store_attitude(sensor_msgs::Imu::Ptr imu_msg)
-	{
-		tf::Vector3 angular_velocity;
-		tf::Vector3 linear_acceleration;
-		tf::Quaternion orientation;
-
-		tf::quaternionMsgToTF(imu_msg->orientation, orientation);
-		tf::vector3MsgToTF(imu_msg->angular_velocity, angular_velocity);
-		tf::vector3MsgToTF(imu_msg->linear_acceleration, linear_acceleration);
-
-		//! @todo replace tf data types with eigen in UAS storage.
-		uas->update_attitude_imu(orientation, angular_velocity, linear_acceleration);
-	}
-
-	//! make message header with syncronized stamp
-	template<typename T>
-	inline std_msgs::Header make_header(T mavlink_msg_time) {
-		std_msgs::Header header;
-		header.frame_id = frame_id;
-		header.stamp = uas->synchronise_stamp(mavlink_msg_time);
-		return header;
 	}
 
 	//! fill and publish imu/data message
@@ -164,7 +140,7 @@ private:
 		auto imu_msg = boost::make_shared<sensor_msgs::Imu>();
 
 		// fill
-		imu_msg->header = make_header(time_boot_ms);
+		imu_msg->header = uas->synchronized_header(frame_id, time_boot_ms);
 
 		tf::quaternionEigenToMsg(orientation, imu_msg->orientation);
 		tf::vectorEigenToMsg(gyro, imu_msg->angular_velocity);
@@ -177,7 +153,7 @@ private:
 		imu_msg->linear_acceleration_covariance = linear_acceleration_cov;
 
 		// publish
-		uas_store_attitude(imu_msg);
+		uas->update_attitude_imu(imu_msg);
 		imu_pub.publish(imu_msg);
 	}
 
@@ -259,7 +235,7 @@ private:
 		ROS_INFO_COND_NAMED(!has_hr_imu, "imu", "IMU: High resolution IMU detected!");
 		has_hr_imu = true;
 
-		auto header = make_header(imu_hr.time_usec);
+		auto header = uas->synchronized_header(frame_id, imu_hr.time_usec);
 
 		//! @todo make more paranoic check of HIGHRES_IMU.fields_updated
 
@@ -307,7 +283,7 @@ private:
 		mavlink_raw_imu_t imu_raw;
 		mavlink_msg_raw_imu_decode(msg, &imu_raw);
 
-		auto header = make_header(imu_raw.time_usec);
+		auto header = uas->synchronized_header(frame_id, imu_raw.time_usec);
 
 		//! @note APM send SCALED_IMU data as RAW_IMU
 
@@ -345,7 +321,7 @@ private:
 		mavlink_scaled_imu_t imu_raw;
 		mavlink_msg_scaled_imu_decode(msg, &imu_raw);
 
-		auto header = make_header(imu_raw.time_boot_ms);
+		auto header = uas->synchronized_header(frame_id, imu_raw.time_boot_ms);
 
 		auto gyro = UAS::transform_frame_ned_enu<Eigen::Vector3d>(
 				Eigen::Vector3d(imu_raw.xgyro, imu_raw.ygyro, imu_raw.zgyro) * MILLIRS_TO_RADSEC);
@@ -368,7 +344,7 @@ private:
 		mavlink_scaled_pressure_t press;
 		mavlink_msg_scaled_pressure_decode(msg, &press);
 
-		auto header = make_header(press.time_boot_ms);
+		auto header = uas->synchronized_header(frame_id, press.time_boot_ms);
 
 		auto temp_msg = boost::make_shared<sensor_msgs::Temperature>();
 		temp_msg->header = header;
