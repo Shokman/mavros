@@ -91,7 +91,7 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-  LIBRARIES mavros_extras
+#  LIBRARIES
   CATKIN_DEPENDS image_transport mavros roscpp sensor_msgs
   DEPENDS Boost mavlink
 )
@@ -100,15 +100,11 @@ catkin_package(
 ## Build ##
 ###########
 
-## Specify additional locations of header files
-## Your package locations should be listed before other locations
-# include_directories(include)
 include_directories(
   ${catkin_INCLUDE_DIRS}
   ${mavlink_INCLUDE_DIRS}
 )
 
-## Declare a cpp library
 add_library(mavros_extras
   src/plugins/distance_sensor.cpp
   src/plugins/px4flow.cpp
@@ -118,9 +114,7 @@ add_library(mavros_extras
   src/plugins/vision_speed_estimate.cpp
   src/plugins/hil.cpp
   src/plugins/vibration.cpp
-)
-add_dependencies(mavros_extras
-  mavros_extras_generate_messages_cpp
+  src/plugins/cam_imu_sync.cpp
 )
 target_link_libraries(mavros_extras
   ${mavros_LIBRARIES}
@@ -169,7 +163,6 @@ install(TARGETS mavros_extras gcs_image_bridge copter_visualization
 # install(DIRECTORY include/${PROJECT_NAME}/
 #   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
 #   FILES_MATCHING PATTERN "*.h"
-#   PATTERN ".svn" EXCLUDE
 # )
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)

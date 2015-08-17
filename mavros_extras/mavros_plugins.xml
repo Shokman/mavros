@@ -22,5 +22,7 @@
 	</class>
 	<class name="hil" type="mavplugin::HILPlugin" base_class_type="mavplugin::MavRosPlugin">
 		<description>Handle hardware in the loop associated messages</description>
+        <class name="cam_imu_sync" type="mavplugin::CamIMUSyncPlugin" base_class_type="mavplugin::MavRosPlugin">
+		<description>Publish camera trigger data for synchronisation of IMU and camera frames</description>
 	</class>
 </library>

@@ -55,8 +55,9 @@ public:
 		sp_nh.param("tf/rate_limit", tf_rate, 10.0);
 
 		if (tf_listen) {
-			ROS_INFO_STREAM_NAMED("attitude", "Listen to desired attitude transform " << tf_frame_id
-					<< " -> " << tf_child_frame_id);
+			ROS_INFO_STREAM_NAMED("attitude",
+					"Listen to desired attitude transform "
+					<< tf_frame_id << " -> " << tf_child_frame_id);
 			tf2_start("AttitudeSpTF", &SetpointAttitudePlugin::transform_cb);
 		}
 		else {
@@ -116,9 +117,9 @@ private:
 		const uint8_t ignore_all_except_q = (1 << 6) | (7 << 0);
 		float q[4];
 
-		// Eigen use same convention as mavlink: w x y z
-		Eigen::Map<Eigen::Quaternionf> q_out(q);
-		q_out = UAS::transform_frame_enu_ned(Eigen::Quaterniond(tr.rotation())).cast<float>();
+		UAS::quaternion_to_mavlink(
+				UAS::transform_frame_enu_ned(Eigen::Quaterniond(tr.rotation())),
+				q);
 
 		set_attitude_target(stamp.toNSec() / 1000000,
 				ignore_all_except_q,
