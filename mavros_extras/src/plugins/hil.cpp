@@ -84,6 +84,7 @@ private:
 	}
 
         void handle_hil_controls(const mavlink_message_t *msg, uint8_t sysid, uint8_t compid) {
+
                 mavlink_hil_controls_t hil_controls_values;
                 mavlink_msg_hil_controls_decode(msg, &hil_controls_values);
 
@@ -95,6 +96,7 @@ private:
 		hil_controls->roll_ailerons = hil_controls_values.roll_ailerons;
 		hil_controls->pitch_elevator = hil_controls_values.roll_ailerons;
 		hil_controls->yaw_rudder = hil_controls_values.yaw_rudder;
+		hil_controls->throttle = hil_controls_values.throttle;
 		hil_controls->aux1 = hil_controls_values.aux1;
 		hil_controls->aux2 = hil_controls_values.aux2;
 		hil_controls->aux3 = hil_controls_values.aux3;
