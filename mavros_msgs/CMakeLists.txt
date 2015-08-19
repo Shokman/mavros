@@ -13,6 +13,8 @@ add_message_files(
   CamIMUStamp.msg
   CommandCode.msg
   FileEntry.msg
+  HILControls.msg
+  HILSensor.msg
   Mavlink.msg
   OpticalFlowRad.msg
   OverrideRCIn.msg
