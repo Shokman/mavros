@@ -17,11 +17,11 @@
 #include <mavros/mavros_plugin.h>
 #include <pluginlib/class_list_macros.h>
 
-#include <mavros/State.h>
-#include <mavros/BatteryStatus.h>
-#include <mavros/StreamRate.h>
-#include <mavros/SetMode.h>
-#include <mavros/CommandLong.h>
+#include <mavros_msgs/State.h>
+#include <mavros_msgs/BatteryStatus.h>
+#include <mavros_msgs/StreamRate.h>
+#include <mavros_msgs/SetMode.h>
+#include <mavros_msgs/CommandLong.h>
 
 namespace mavplugin {
 /**
@@ -32,14 +32,14 @@ namespace mavplugin {
 class HeartbeatStatus : public diagnostic_updater::DiagnosticTask
 {
 public:
-	HeartbeatStatus(const std::string name, size_t win_size) :
+	HeartbeatStatus(const std::string &name, size_t win_size) :
 		diagnostic_updater::DiagnosticTask(name),
+		times_(win_size),
+		seq_nums_(win_size),
 		window_size_(win_size),
 		min_freq_(0.2),
 		max_freq_(100),
 		tolerance_(0.1),
-		times_(win_size),
-		seq_nums_(win_size),
 		autopilot(MAV_AUTOPILOT_GENERIC),
 		type(MAV_TYPE_GENERIC),
 		system_status(MAV_STATE_UNINIT)
@@ -52,8 +52,7 @@ public:
 		ros::Time curtime = ros::Time::now();
 		count_ = 0;
 
-		for (int i = 0; i < window_size_; i++)
-		{
+		for (size_t i = 0; i < window_size_; i++) {
 			times_[i] = curtime;
 			seq_nums_[i] = count_;
 		}
@@ -128,7 +127,7 @@ private:
 class SystemStatusDiag : public diagnostic_updater::DiagnosticTask
 {
 public:
-	SystemStatusDiag(const std::string name) :
+	SystemStatusDiag(const std::string &name) :
 		diagnostic_updater::DiagnosticTask(name),
 		last_st {}
 	{ };
@@ -203,7 +202,7 @@ private:
 class BatteryStatusDiag : public diagnostic_updater::DiagnosticTask
 {
 public:
-	BatteryStatusDiag(const std::string name) :
+	BatteryStatusDiag(const std::string &name) :
 		diagnostic_updater::DiagnosticTask(name),
 		voltage(-1.0),
 		current(0.0),
@@ -253,7 +252,7 @@ private:
 class MemInfo : public diagnostic_updater::DiagnosticTask
 {
 public:
-	MemInfo(const std::string name) :
+	MemInfo(const std::string &name) :
 		diagnostic_updater::DiagnosticTask(name),
 		freemem(-1),
 		brkval(0)
@@ -291,7 +290,7 @@ private:
 class HwStatus : public diagnostic_updater::DiagnosticTask
 {
 public:
-	HwStatus(const std::string name) :
+	HwStatus(const std::string &name) :
 		diagnostic_updater::DiagnosticTask(name),
 		vcc(-1.0),
 		i2cerr(0),
@@ -404,8 +403,8 @@ public:
 		// subscribe to connection event
 		uas->sig_connection_changed.connect(boost::bind(&SystemStatusPlugin::connection_cb, this, _1));
 
-		state_pub = nh.advertise<mavros::State>("state", 10, true);
-		batt_pub = nh.advertise<mavros::BatteryStatus>("battery", 10);
+		state_pub = nh.advertise<mavros_msgs::State>("state", 10, true);
+		batt_pub = nh.advertise<mavros_msgs::BatteryStatus>("battery", 10);
 		rate_srv = nh.advertiseService("set_stream_rate", &SystemStatusPlugin::set_rate_cb, this);
 		mode_srv = nh.advertiseService("set_mode", &SystemStatusPlugin::set_mode_cb, this);
 
@@ -576,7 +575,7 @@ private:
 	}
 
 	void publish_disconnection() {
-		auto state_msg = boost::make_shared<mavros::State>();
+		auto state_msg = boost::make_shared<mavros_msgs::State>();
 		state_msg->header.stamp = ros::Time::now();
 		state_msg->connected = false;
 		state_msg->armed = false;
@@ -604,7 +603,7 @@ private:
 		timeout_timer.start();
 
 		// build state message after updating uas
-		auto state_msg = boost::make_shared<mavros::State>();
+		auto state_msg = boost::make_shared<mavros_msgs::State>();
 		state_msg->header.stamp = ros::Time::now();
 		state_msg->connected = true;
 		state_msg->armed = hb.base_mode & MAV_MODE_FLAG_SAFETY_ARMED;
@@ -623,7 +622,7 @@ private:
 		float curr = stat.current_battery / 100.0f;	// 10 mA or -1
 		float rem = stat.battery_remaining / 100.0f;	// or -1
 
-		auto batt_msg = boost::make_shared<mavros::BatteryStatus>();
+		auto batt_msg = boost::make_shared<mavros_msgs::BatteryStatus>();
 		batt_msg->header.stamp = ros::Time::now();
 		batt_msg->voltage = volt;
 		batt_msg->current = curr;
@@ -706,9 +705,9 @@ private:
 		bool do_broadcast = version_retries > RETRIES_COUNT / 2;
 
 		try {
-			auto client = nh.serviceClient<mavros::CommandLong>("cmd/command");
+			auto client = nh.serviceClient<mavros_msgs::CommandLong>("cmd/command");
 
-			mavros::CommandLong cmd{};
+			mavros_msgs::CommandLong cmd{};
 
 			cmd.request.broadcast = do_broadcast;
 			cmd.request.command = MAV_CMD_REQUEST_AUTOPILOT_CAPABILITIES;
@@ -777,8 +776,8 @@ private:
 
 	/* -*- ros callbacks -*- */
 
-	bool set_rate_cb(mavros::StreamRate::Request &req,
-			mavros::StreamRate::Response &res) {
+	bool set_rate_cb(mavros_msgs::StreamRate::Request &req,
+			mavros_msgs::StreamRate::Response &res) {
 		mavlink_message_t msg;
 		mavlink_msg_request_data_stream_pack_chan(UAS_PACK_CHAN(uas), &msg,
 				UAS_PACK_TGT(uas),
@@ -791,8 +790,8 @@ private:
 		return true;
 	}
 
-	bool set_mode_cb(mavros::SetMode::Request &req,
-			mavros::SetMode::Response &res) {
+	bool set_mode_cb(mavros_msgs::SetMode::Request &req,
+			mavros_msgs::SetMode::Response &res) {
 		mavlink_message_t msg;
 		uint8_t base_mode = req.base_mode;
 		uint32_t custom_mode = 0;

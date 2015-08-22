@@ -19,11 +19,12 @@
 #include <mavros/mavros_plugin.h>
 #include <pluginlib/class_list_macros.h>
 
-#include <mavros/CommandLong.h>
-#include <mavros/CommandInt.h>
-#include <mavros/CommandBool.h>
-#include <mavros/CommandHome.h>
-#include <mavros/CommandTOL.h>
+#include <mavros_msgs/CommandLong.h>
+#include <mavros_msgs/CommandInt.h>
+#include <mavros_msgs/CommandBool.h>
+#include <mavros_msgs/CommandHome.h>
+#include <mavros_msgs/CommandTOL.h>
+#include <mavros_msgs/CommandTriggerControl.h>
 
 namespace mavplugin {
 class CommandTransaction {
@@ -67,6 +68,7 @@ public:
 		takeoff_srv = cmd_nh.advertiseService("takeoff", &CommandPlugin::takeoff_cb, this);
 		land_srv = cmd_nh.advertiseService("land", &CommandPlugin::land_cb, this);
 		guided_srv = cmd_nh.advertiseService("guided_enable", &CommandPlugin::guided_cb, this);
+		trigger_srv = cmd_nh.advertiseService("trigger_control", &CommandPlugin::trigger_control_cb, this);
 	}
 
 	const message_map get_rx_handlers() {
@@ -87,6 +89,7 @@ private:
 	ros::ServiceServer takeoff_srv;
 	ros::ServiceServer land_srv;
 	ros::ServiceServer guided_srv;
+	ros::ServiceServer trigger_srv;
 
 	bool use_comp_id_system_control;
 
@@ -271,8 +274,8 @@ private:
 
 	/* -*- callbacks -*- */
 
-	bool command_long_cb(mavros::CommandLong::Request &req,
-			mavros::CommandLong::Response &res) {
+	bool command_long_cb(mavros_msgs::CommandLong::Request &req,
+			mavros_msgs::CommandLong::Response &res) {
 		return send_command_long_and_wait(req.broadcast,
 				req.command, req.confirmation,
 				req.param1, req.param2,
@@ -282,8 +285,8 @@ private:
 				res.success, res.result);
 	}
 
-	bool command_int_cb(mavros::CommandInt::Request &req,
-			mavros::CommandInt::Response &res) {
+	bool command_int_cb(mavros_msgs::CommandInt::Request &req,
+			mavros_msgs::CommandInt::Response &res) {
 		return send_command_int(req.broadcast,
 				req.frame, req.command,
 				req.current, req.autocontinue,
@@ -293,8 +296,8 @@ private:
 				res.success);
 	}
 
-	bool arming_cb(mavros::CommandBool::Request &req,
-			mavros::CommandBool::Response &res) {
+	bool arming_cb(mavros_msgs::CommandBool::Request &req,
+			mavros_msgs::CommandBool::Response &res) {
 		return send_command_long_and_wait(false,
 				MAV_CMD_COMPONENT_ARM_DISARM, 1,
 				(req.value) ? 1.0 : 0.0,
@@ -302,8 +305,8 @@ private:
 				res.success, res.result);
 	}
 
-	bool set_home_cb(mavros::CommandHome::Request &req,
-			mavros::CommandHome::Response &res) {
+	bool set_home_cb(mavros_msgs::CommandHome::Request &req,
+			mavros_msgs::CommandHome::Response &res) {
 		return send_command_long_and_wait(false,
 				MAV_CMD_DO_SET_HOME, 1,
 				(req.current_gps) ? 1.0 : 0.0,
@@ -311,8 +314,8 @@ private:
 				res.success, res.result);
 	}
 
-	bool takeoff_cb(mavros::CommandTOL::Request &req,
-			mavros::CommandTOL::Response &res) {
+	bool takeoff_cb(mavros_msgs::CommandTOL::Request &req,
+			mavros_msgs::CommandTOL::Response &res) {
 		return send_command_long_and_wait(false,
 				MAV_CMD_NAV_TAKEOFF, 1,
 				req.min_pitch,
@@ -322,8 +325,8 @@ private:
 				res.success, res.result);
 	}
 
-	bool land_cb(mavros::CommandTOL::Request &req,
-			mavros::CommandTOL::Response &res) {
+	bool land_cb(mavros_msgs::CommandTOL::Request &req,
+			mavros_msgs::CommandTOL::Response &res) {
 		return send_command_long_and_wait(false,
 				MAV_CMD_NAV_LAND, 1,
 				0, 0, 0,
@@ -332,12 +335,22 @@ private:
 				res.success, res.result);
 	}
 
-	bool guided_cb(mavros::CommandBool::Request &req,
-			mavros::CommandBool::Response &res) {
+	bool guided_cb(mavros_msgs::CommandBool::Request &req,
+			mavros_msgs::CommandBool::Response &res) {
 		return send_command_long_and_wait(false,
 				MAV_CMD_NAV_GUIDED_ENABLE, 1,
 				(req.value) ? 1.0 : 0.0,
 				0, 0, 0, 0, 0, 0,
+				res.success, res.result);
+	}
+
+        bool trigger_control_cb(mavros_msgs::CommandTriggerControl::Request &req,
+			mavros_msgs::CommandTriggerControl::Response &res) {
+		return send_command_long_and_wait(false,
+				MAV_CMD_DO_TRIGGER_CONTROL, 1,
+				(req.trigger_enable)? 1.0 : 0.0,
+				req.integration_time,
+				0, 0, 0, 0, 0,
 				res.success, res.result);
 	}
 };
