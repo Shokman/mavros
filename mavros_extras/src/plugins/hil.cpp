@@ -17,8 +17,8 @@
 #include <mavros/mavros_plugin.h>
 #include <pluginlib/class_list_macros.h>
 
-#include <mavros_extras/HILSensor.h>
-#include <mavros_extras/HILControls.h>
+#include <mavros_msgs/HILSensor.h>
+#include <mavros_msgs/HILControls.h>
 
 namespace mavplugin {
 /**
@@ -35,7 +35,7 @@ public:
 	{
 		uas = &uas_;
 
-		hil_controls_pub = hil_nh.advertise<mavros_extras::HILControls>("controls", 10);
+		hil_controls_pub = hil_nh.advertise<mavros_msgs::HILControls>("controls", 10);
 		hil_sensor_sub = hil_nh.subscribe("sensor", 10, &HILPlugin::hil_sensor_cb, this);
 
 		uas->sig_connection_changed.connect(boost::bind(&HILPlugin::connection_cb, this, _1));
@@ -58,7 +58,7 @@ private:
 
 	/* -*- low-level send functions -*- */
 
-	void hil_sensor_send(const mavros_extras::HILSensor::ConstPtr &hil_sensor) {
+	void hil_sensor_send(const mavros_msgs::HILSensor::ConstPtr &hil_sensor) {
 		mavlink_message_t msg;
 
 		ros::Time time = ros::Time::now();
@@ -88,7 +88,7 @@ private:
                 mavlink_hil_controls_t hil_controls_values;
                 mavlink_msg_hil_controls_decode(msg, &hil_controls_values);
 
-		auto hil_controls = boost::make_shared<mavros_extras::HILControls>();
+		auto hil_controls = boost::make_shared<mavros_msgs::HILControls>();
 
                 std_msgs::Header header;
                 header.stamp = uas->synchronise_stamp(hil_controls_values.time_usec);
@@ -113,7 +113,7 @@ private:
 		lock_guard lock(mutex);
 	}
 
-	void hil_sensor_cb(const mavros_extras::HILSensor::ConstPtr &req) {
+	void hil_sensor_cb(const mavros_msgs::HILSensor::ConstPtr &req) {
 //		if (!uas->is_ardupilotmega())
 
 		hil_sensor_send(req);
