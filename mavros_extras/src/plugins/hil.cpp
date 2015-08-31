@@ -94,7 +94,7 @@ private:
                 header.stamp = uas->synchronise_stamp(hil_controls_values.time_usec);
 
 		hil_controls->roll_ailerons = hil_controls_values.roll_ailerons;
-		hil_controls->pitch_elevator = hil_controls_values.roll_ailerons;
+		hil_controls->pitch_elevator = hil_controls_values.pitch_elevator;
 		hil_controls->yaw_rudder = hil_controls_values.yaw_rudder;
 		hil_controls->throttle = hil_controls_values.throttle;
 		hil_controls->aux1 = hil_controls_values.aux1;
